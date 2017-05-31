@@ -1,5 +1,5 @@
-hash: 60f4d0cd61a7f80d65569975293a4820fe5d5c66fa4d43617520d73c2734c433
-updated: 2017-05-31T23:30:21.724747938+02:00
+hash: 08714b0ca469ea9170d513556af00130e906e587a8f0914f7ba851bc0fee2acb
+updated: 2017-06-01T00:25:38.848249659+02:00
 imports:
 - name: github.com/fsnotify/fsnotify
   version: a904159b9206978bb6d53fcc7a769e5cd726c737
@@ -22,6 +22,8 @@ imports:
   version: df1e16fde7fc330a0ca68167c23bf7ed6ac31d6d
 - name: github.com/pelletier/go-toml
   version: 22139eb5469018e7374b3e7ef653de37ffb44f72
+- name: github.com/sirupsen/logrus
+  version: ba1b36c82c5e05c4f912a88eab0dcd91a171688f
 - name: github.com/spf13/afero
   version: 9be650865eab0c12963d8753212f4f9c66cdcf12
   subpackages:
