@@ -1,5 +1,5 @@
-hash: 08714b0ca469ea9170d513556af00130e906e587a8f0914f7ba851bc0fee2acb
-updated: 2017-06-01T00:25:38.848249659+02:00
+hash: 07d2ca523a36bb7790390322f1933407e181f4738f5daf38a15c8ce9dc356eda
+updated: 2017-06-01T12:17:54.097406358+02:00
 imports:
 - name: github.com/fsnotify/fsnotify
   version: a904159b9206978bb6d53fcc7a769e5cd726c737
@@ -45,6 +45,8 @@ imports:
   subpackages:
   - transform
   - unicode/norm
+- name: gopkg.in/flosch/pongo2.v3
+  version: 5e81b817a0c48c1c57cdf1a9056cf76bdee02ca9
 - name: gopkg.in/yaml.v2
   version: a3f3340b5840cee44f372bddb5880fcbc419b46a
 testImports:

@@ -13,7 +13,7 @@ func TestGetConfig(t *testing.T) {
 	assert.NotNil(err, "Error should be not nil")
 	assert.Equal(err.Error(), ErrConfigUninitalized.Error())
 
-	err = InitConfig("config.yaml")
+	err = InitConfig("./testdir/config.yaml")
 	assert.Nil(err, "File present, error should be nil")
 	conf, err = GetConfig()
 	expected := "world"

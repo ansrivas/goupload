@@ -2,6 +2,8 @@ package internal
 
 import (
 	"path/filepath"
+
+	pongo "gopkg.in/flosch/pongo2.v3"
 )
 
 type paths struct {
@@ -12,32 +14,35 @@ type paths struct {
 
 // Bunch of variables which are populated to be used with the program.
 var (
-	LandingPage       string
-	UploadPage        string
-	LoginPage         string
+	publicPage        string
+	protectedPage     string
+	loginPage         string
 	SuccessUploadPage string
 	path              paths
+	Templates         *templateList
 )
 
-func init() {
+// Templates is a collection of pongo templates which is used in the application.
+type templateList struct {
+	Login     *pongo.Template
+	Protected *pongo.Template
+	Public    *pongo.Template
+}
+
+//SetAssetsPath defines a baseDir for static assets.
+func SetAssetsPath(baseDir string) {
 	path = paths{
-		Templates:  "static/templates/",
-		CSS:        "static/assets/css/",
-		Javascript: "static/assets/js",
+		Templates:  "templates/",
+		CSS:        "assets/css/",
+		Javascript: "assets/js",
 	}
-	LandingPage = filepath.Join(path.Templates, "landing.html")
-	UploadPage = filepath.Join(path.Templates, "upload.html")
-	LoginPage = filepath.Join(path.Templates, "login.html")
-	SuccessUploadPage = filepath.Join(path.Templates, "successUpload.html")
+	loginPage = filepath.Join(baseDir, path.Templates, "login.html")
+	publicPage = filepath.Join(baseDir, path.Templates, "public.html")
+	protectedPage = filepath.Join(baseDir, path.Templates, "protected.html")
 
-}
-
-//StaticCSS gets the path of static css files
-func StaticCSS(css string) string {
-	return filepath.Join(path.CSS, css)
-}
-
-//StaticJS gets the path of static JS files
-func StaticJS(js string) string {
-	return filepath.Join(path.Javascript, js)
+	Templates = &templateList{
+		Login:     pongo.Must(pongo.FromFile(loginPage)),
+		Public:    pongo.Must(pongo.FromFile(publicPage)),
+		Protected: pongo.Must(pongo.FromFile(protectedPage)),
+	}
 }

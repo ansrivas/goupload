@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ansrivas/logger"
+	"github.com/ansrivas/goupload/logger"
 	"github.com/spf13/viper"
 )
 

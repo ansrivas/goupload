@@ -1,0 +1,40 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Please select the store</h3>
+                </div>
+                <div class="panel-body">
+                    <form accept-charset="UTF-8" role="form" enctype="multipart/form-data" action="/upload" method="post">
+                        {% if NoFileSelectedError %}
+                        <div class=' text-center imp_message'>
+                            <span class="label label-danger">{{ NoFileSelectedError }} </span>
+                            <hr>
+                            <div>
+                              <a class="btn btn-large btn-info" href="/">Go back</a>
+                            </div>
+                        </div>
+                        {% else %} {% for customer in customers %}
+                        <div class="radio">
+                            <label><input onchange="myFunction()" type="radio" name="optradio"  value= {{ customer.Name }}>{{ customer.Name }}</label>
+                        </div>
+                        {% endfor %}
+                        <div id="custom-file-selector" style="display:none;">
+                            <label class="btn btn-primary" for="my-file-selector">
+                            <input name="uploadfile" id="my-file-selector" type="file"  style="display:none;"/>
+                            Choose file
+                            </label>
+                            <hr>
+                            <input class="btn btn-lg btn-success btn-block" type="submit" value="Upload" />
+                        </div>
+                        {% endif %}
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
