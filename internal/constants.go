@@ -19,18 +19,18 @@ var (
 	loginPage         string
 	SuccessUploadPage string
 	path              paths
-	Templates         *templateList
+	templates         *TemplateList
 )
 
-// Templates is a collection of pongo templates which is used in the application.
-type templateList struct {
+// TemplateList is a collection of pongo templates which is used in the application.
+type TemplateList struct {
 	Login     *pongo.Template
 	Protected *pongo.Template
 	Public    *pongo.Template
 }
 
 //SetAssetsPath defines a baseDir for static assets.
-func SetAssetsPath(baseDir string) {
+func SetAssetsPath(baseDir string) *TemplateList {
 	path = paths{
 		Templates:  "templates/",
 		CSS:        "assets/css/",
@@ -40,7 +40,7 @@ func SetAssetsPath(baseDir string) {
 	publicPage = filepath.Join(baseDir, path.Templates, "public.html")
 	protectedPage = filepath.Join(baseDir, path.Templates, "protected.html")
 
-	Templates = &templateList{
+	return &TemplateList{
 		Login:     pongo.Must(pongo.FromFile(loginPage)),
 		Public:    pongo.Must(pongo.FromFile(publicPage)),
 		Protected: pongo.Must(pongo.FromFile(protectedPage)),

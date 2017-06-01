@@ -8,10 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNumberDumper(t *testing.T) {
+func Test_Get(t *testing.T) {
 
 	// We first create the http.Handler we wish to test
-	route := IndexRouter{}
+	route := IndexResource{}.GetIndex
 
 	// We create an http.Request object to test with. The http.Request is
 	// totally customizable in every way that a real-life http request is, so
@@ -24,10 +24,7 @@ func TestNumberDumper(t *testing.T) {
 	// reality it's being buffered for later observation
 	w := httptest.NewRecorder()
 
-	// Pass in our httptest.Recorder and http.Request to our numberDumper. At
-	// this point the numberDumper will act just as if it was responding to a
-	// real request
-	route.GetIndex(w, r)
+	route(w, r)
 
 	// httptest.Recorder gives a number of fields and methods which can be used
 	// to observe the response made to our request. Here we check the response
@@ -38,6 +35,24 @@ func TestNumberDumper(t *testing.T) {
 
 	// We can also get the full body out of the httptest.Recorder, and check
 	// that its contents are what we expect
+	body := w.Body.String()
+	assert.Equal(t, "welcome", body, "Get request on / should return welcome.")
+
+}
+
+func Test_Post(t *testing.T) {
+
+	// We first create the http.Handler we wish to test
+	route := IndexResource{}.PostIndex
+
+	r, _ := http.NewRequest("POST", "/", nil)
+	w := httptest.NewRecorder()
+	route(w, r)
+
+	if w.Code != 200 {
+		t.Fatalf("wrong code returned: %d", w.Code)
+	}
+
 	body := w.Body.String()
 	assert.Equal(t, "welcome", body, "Get request on / should return welcome.")
 

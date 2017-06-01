@@ -28,4 +28,4 @@ app_help: build
 test_run:   ## Run the application in a test mode
 test_run:	clean build
 	@echo "Running now.."
-	@./goupload --config ./config.yaml --staticDir ./static
+	@./goupload --configPath ./config.yaml 

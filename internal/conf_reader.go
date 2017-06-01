@@ -9,28 +9,27 @@ import (
 )
 
 var (
-	config *viper.Viper
 	//ErrConfigUninitalized is thrown whenever a configuration is not initialized.
 	ErrConfigUninitalized = fmt.Errorf("Config uninitialized. Please call InitConfig first")
 	log                   = logger.Logger
 )
 
+type Configuration struct {
+	config *viper.Viper
+}
+
 // InitConfig returns the config object for this project
-func InitConfig(configPath string) error {
+func NewConfig(configPath string) (*Configuration, error) {
 	viper.SetConfigFile(configPath)
 	err := viper.ReadInConfig()
 	if err != nil {
 
-		return errors.New("Config file not found: " + configPath)
+		return nil, errors.New("Config file not found: " + configPath)
 	}
-	config = viper.GetViper()
-	return nil
+	return &Configuration{config: viper.GetViper()}, nil
 }
 
 //GetConfig returns the viper config object
-func GetConfig() (*viper.Viper, error) {
-	if config != nil {
-		return config, nil
-	}
-	return nil, ErrConfigUninitalized
+func (config Configuration) GetConfig() *viper.Viper {
+	return config.config
 }

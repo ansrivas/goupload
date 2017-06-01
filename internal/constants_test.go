@@ -9,9 +9,9 @@ import (
 func Test_Assets(t *testing.T) {
 	assert := assert.New(t)
 
-	SetAssetsPath("./testdir")
+	templates := SetAssetsPath("./testdir")
 
-	assert.NotNil(Templates.Login, "Template should be properly initialized")
-	assert.NotNil(Templates.Public, "Template should be properly initialized")
-	assert.NotNil(Templates.Protected, "Template should be properly initialized")
+	assert.NotNil(templates.Login, "Template should be properly initialized")
+	assert.NotNil(templates.Public, "Template should be properly initialized")
+	assert.NotNil(templates.Protected, "Template should be properly initialized")
 }
