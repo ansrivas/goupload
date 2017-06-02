@@ -17,6 +17,7 @@ func (idx IndexResource) GetIndex(w http.ResponseWriter, r *http.Request) {
 
 //PostIndex handles POST requests on / end point
 func (idx IndexResource) PostIndex(w http.ResponseWriter, r *http.Request) {
+
 	w.Write([]byte("welcome"))
 }
 
