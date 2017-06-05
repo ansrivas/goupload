@@ -46,7 +46,6 @@ func NewRouter(templateList *internal.TemplateList, log *logrus.Entry, conf *vip
 		logger:       log,
 	}
 	router.FileServer("/static", http.Dir(staticFilesPath))
-	// router.Mount("/", IndexResource{env: routeEnv}.Routes())
 	router.Mount("/", resources.RouteIndex())
 
 	// router.Mount("/upload", UploadResource{}.Routes())
