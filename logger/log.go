@@ -3,23 +3,20 @@ package logger
 import (
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
-// Logger should be used everywhere throughout the application
-var (
-	Logger = log.New().WithField("appName", "goupload")
-)
+// SetupLogger sets up logger with a given field and returns a logrus entry.
+func SetupLogger(appName string) *logrus.Entry {
 
-func init() {
-
-	log.SetFormatter(&log.TextFormatter{})
+	logrus.SetFormatter(&logrus.TextFormatter{})
 
 	// Output to stdout instead of the default stderr
 	// Can be any io.Writer, see below for File example
-	log.SetOutput(os.Stdout)
+	logrus.SetOutput(os.Stdout)
 
-	// Only log the warning severity or above.
-	log.SetLevel(log.InfoLevel)
+	// Only log the Info severity or above.
+	logrus.SetLevel(logrus.InfoLevel)
 
+	return logrus.WithField("appName", appName)
 }

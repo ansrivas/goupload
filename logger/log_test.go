@@ -9,5 +9,6 @@ import (
 func Test_(t *testing.T) {
 	assert := assert.New(t)
 
-	assert.Equal(Logger.Logger.Level.String(), "info", "Default log level should be info")
+	log := SetupLogger("testapp")
+	assert.Equal(log.Logger.Level.String(), "info", "Default log level should be info")
 }

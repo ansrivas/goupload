@@ -4,25 +4,25 @@ import (
 	"net/http"
 
 	"github.com/pressly/chi"
+
+	pongo "gopkg.in/flosch/pongo2.v3"
 )
 
-//IndexResource handles requests on /
-type IndexResource struct {
-}
-
 //GetIndex handles GET requests on / end point
-func (idx IndexResource) GetIndex(w http.ResponseWriter, r *http.Request) {
+func (idx Resource) GetIndex(w http.ResponseWriter, r *http.Request) {
+	idx.logger.Info("Hitting the index page")
+	idx.templateList.Public.ExecuteWriter(pongo.Context{}, w)
 	w.Write([]byte("welcome"))
+
 }
 
 //PostIndex handles POST requests on / end point
-func (idx IndexResource) PostIndex(w http.ResponseWriter, r *http.Request) {
-
+func (idx Resource) PostIndex(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("welcome"))
 }
 
 //Routes returns a chi.Mux for all the requests defined on /
-func (idx IndexResource) Routes() *chi.Mux {
+func (idx Resource) RouteIndex() *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/", idx.GetIndex)
 	router.Post("/", idx.PostIndex)

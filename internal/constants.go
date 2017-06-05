@@ -32,17 +32,15 @@ type TemplateList struct {
 //SetAssetsPath defines a baseDir for static assets.
 func SetAssetsPath(baseDir string) *TemplateList {
 	path = paths{
-		Templates:  "templates/",
-		CSS:        "assets/css/",
-		Javascript: "assets/js",
+		Templates: "templates/",
 	}
 	loginPage = filepath.Join(baseDir, path.Templates, "login.html")
 	publicPage = filepath.Join(baseDir, path.Templates, "public.html")
 	protectedPage = filepath.Join(baseDir, path.Templates, "protected.html")
 
 	return &TemplateList{
-		Login:     pongo.Must(pongo.FromFile(loginPage)),
-		Public:    pongo.Must(pongo.FromFile(publicPage)),
-		Protected: pongo.Must(pongo.FromFile(protectedPage)),
+		Login:     pongo.Must(pongo.FromCache(loginPage)),
+		Public:    pongo.Must(pongo.FromCache(publicPage)),
+		Protected: pongo.Must(pongo.FromCache(protectedPage)),
 	}
 }

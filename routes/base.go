@@ -3,14 +3,24 @@ package routes
 import (
 	"net/http"
 
-	"github.com/ansrivas/goupload/environment"
+	"github.com/ansrivas/goupload/internal"
 	"github.com/pressly/chi"
 	"github.com/pressly/chi/middleware"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
-//BaseRoutes is the entry point of routes.
-func BaseRoutes(env *environment.Env, conf *viper.Viper) *chi.Mux {
+//IndexResource handles requests on /
+type Resource struct {
+	templateList *internal.TemplateList
+	logger       *logrus.Entry
+	// store sessions.Store
+	// db db
+	// templates map[string]*template.Template
+}
+
+// NewRouter is the entry point of routes.
+func NewRouter(templateList *internal.TemplateList, log *logrus.Entry, conf *viper.Viper) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Use(
@@ -27,10 +37,17 @@ func BaseRoutes(env *environment.Env, conf *viper.Viper) *chi.Mux {
 		middleware.StripSlashes,
 	)
 
-	staticResource := StaticResource{staticDir: conf.GetString("app.static_dir_path")}
-	router.Mount("/static", staticResource.Routes())
+	staticFilesPath := conf.GetString("app.static_dir_path")
 
-	router.Mount("/", IndexResource{}.Routes())
+	logrus.Println("Path to static files", staticFilesPath)
+
+	resources := Resource{
+		templateList: templateList,
+		logger:       log,
+	}
+	router.FileServer("/static", http.Dir(staticFilesPath))
+	// router.Mount("/", IndexResource{env: routeEnv}.Routes())
+	router.Mount("/", resources.RouteIndex())
 
 	// router.Mount("/upload", UploadResource{}.Routes())
 	return router
