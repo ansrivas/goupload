@@ -36,15 +36,7 @@ func Test_Get(t *testing.T) {
 	// httptest.Recorder gives a number of fields and methods which can be used
 	// to observe the response made to our request. Here we check the response
 	// code
-	if w.Code != 200 {
-		t.Fatalf("wrong code returned: %d", w.Code)
-	}
-
-	// We can also get the full body out of the httptest.Recorder, and check
-	// that its contents are what we expect
-	body := w.Body.String()
-	assert.Equal(t, "welcome", body, "Get request on / should return welcome.")
-
+	assert.Equal(t, http.StatusOK, w.Code, "/ should return a 200")
 }
 
 // func Test_Get(t *testing.T) {
