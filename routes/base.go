@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-//IndexResource handles requests on /
+// Resource handles requests on /
 type Resource struct {
 	templateList *internal.TemplateList
 	logger       *logrus.Entry
