@@ -14,7 +14,6 @@ import (
 
 var (
 	configPath string
-	// log        = logger.Logger
 )
 
 func init() {
