@@ -39,7 +39,7 @@ func NewRouter(templateList *internal.TemplateList, log *logrus.Entry, conf *vip
 
 	staticFilesPath := conf.GetString("app.static_dir_path")
 
-	logrus.Println("Path to static files", staticFilesPath)
+	logrus.Infoln("Path to static files", staticFilesPath)
 
 	resources := Resource{
 		templateList: templateList,
