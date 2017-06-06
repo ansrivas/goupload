@@ -8,18 +8,28 @@ import (
 	"github.com/ansrivas/goupload/internal"
 	"github.com/ansrivas/goupload/logger"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func Test_Get(t *testing.T) {
+type indexTestSuite struct {
+	suite.Suite
+	routes Resource
+}
+
+func (suite *indexTestSuite) SetupTest() {
+
 	templateList := internal.SetAssetsPath("./testdir")
 	log := logger.SetupLogger("testapp")
 
 	// We first create the http.Handler we wish to test
-	route := Resource{
+	suite.routes = Resource{
 		templateList: templateList,
 		logger:       log,
-	}.GetIndex
+	}
 
+}
+
+func (suite *indexTestSuite) Test_Get() {
 	// We create an http.Request object to test with. The http.Request is
 	// totally customizable in every way that a real-life http request is, so
 	// even the most intricate behavior can be tested
@@ -31,28 +41,30 @@ func Test_Get(t *testing.T) {
 	// reality it's being buffered for later observation
 	w := httptest.NewRecorder()
 
-	route(w, r)
+	suite.routes.GetIndex(w, r)
 
 	// httptest.Recorder gives a number of fields and methods which can be used
 	// to observe the response made to our request. Here we check the response
 	// code
-	assert.Equal(t, http.StatusOK, w.Code, "/ should return a 200")
+	assert.Equal(suite.T(), http.StatusOK, w.Code, "/ should return a 200")
 }
 
-func Test_Post(t *testing.T) {
+func (suite *indexTestSuite) Test_Post() {
 
 	// We first create the http.Handler we wish to test
-	route := Resource{}.PostIndex
+	// route := Resource{}.PostIndex
 
 	r, _ := http.NewRequest("POST", "/", nil)
 	w := httptest.NewRecorder()
-	route(w, r)
+	suite.routes.PostIndex(w, r)
 
-	if w.Code != 200 {
-		t.Fatalf("wrong code returned: %d", w.Code)
-	}
+	assert.Equal(suite.T(), http.StatusOK, w.Code, "Post request on / should return 200.")
 
 	body := w.Body.String()
-	assert.Equal(t, "welcome", body, "Get request on / should return welcome.")
+	assert.Equal(suite.T(), "welcome", body, "Post request on / should return welcome as body.")
 
+}
+
+func TestIndexTestSuite(t *testing.T) {
+	suite.Run(t, new(indexTestSuite))
 }
