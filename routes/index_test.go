@@ -7,7 +7,6 @@ import (
 
 	"github.com/ansrivas/goupload/internal"
 	"github.com/ansrivas/goupload/logger"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -46,7 +45,7 @@ func (suite *indexTestSuite) Test_Get() {
 	// httptest.Recorder gives a number of fields and methods which can be used
 	// to observe the response made to our request. Here we check the response
 	// code
-	assert.Equal(suite.T(), http.StatusOK, w.Code, "/ should return a 200")
+	suite.Equal(http.StatusOK, w.Code, "/ should return a 200")
 }
 
 func (suite *indexTestSuite) Test_Post() {
@@ -58,10 +57,10 @@ func (suite *indexTestSuite) Test_Post() {
 	w := httptest.NewRecorder()
 	suite.routes.PostIndex(w, r)
 
-	assert.Equal(suite.T(), http.StatusOK, w.Code, "Post request on / should return 200.")
+	suite.Equal(http.StatusOK, w.Code, "Post request on / should return 200.")
 
 	body := w.Body.String()
-	assert.Equal(suite.T(), "welcome", body, "Post request on / should return welcome as body.")
+	suite.Equal("welcome", body, "Post request on / should return welcome as body.")
 
 }
 
