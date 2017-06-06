@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -25,7 +26,10 @@ func (suite *indexTestSuite) SetupTest() {
 		templateList: templateList,
 		logger:       log,
 	}
+}
 
+func (suite *indexTestSuite) TearDownTest() {
+	log.Println("This should have been printed after each test to cleanup resoures.")
 }
 
 func (suite *indexTestSuite) Test_Get() {
