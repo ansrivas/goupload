@@ -5,7 +5,7 @@ This is an experimental project to understand Golang's `Chi` mux with `pongo2` t
 ---
 1. Run help:
 
-    ```
+    ```bash
     $ make help
     help:        Show available options with this Makefile
     test:        Run all the tests
