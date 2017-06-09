@@ -1,8 +1,10 @@
-hash: 1783bfa5a14522a73e45169e541e1570a5998cc313f06af241cae8c1bb6ac72c
-updated: 2017-06-01T17:55:02.529221909+02:00
+hash: 8e1e73d68b28f5048dd1da5ff3cdd952e9e8384e91880965e3d7acd3e8bf8730
+updated: 2017-06-09T18:00:19.727791299+02:00
 imports:
 - name: github.com/fsnotify/fsnotify
   version: a904159b9206978bb6d53fcc7a769e5cd726c737
+- name: github.com/gorilla/sessions
+  version: ca9ada44574153444b00d3fd9c8559e4cc95f896
 - name: github.com/hashicorp/hcl
   version: 630949a3c5fa3c613328e1b8256052cbc2327c9b
   subpackages:
@@ -16,6 +18,8 @@ imports:
   - json/token
 - name: github.com/magiconair/properties
   version: b3b15ef068fd0b17ddf408a23669f20811d194d2
+- name: github.com/michaeljs1990/sqlitestore
+  version: 2119833f2f4e697aa70960544d7c95b681b3a957
 - name: github.com/mitchellh/mapstructure
   version: db1efb556f84b25a0a13a04aad883943538ad2e0
 - name: github.com/pelletier/go-buffruneio
@@ -24,6 +28,8 @@ imports:
   version: 22139eb5469018e7374b3e7ef653de37ffb44f72
 - name: github.com/pressly/chi
   version: e6033ea75479391a4bce3918fc119cad31e1cb30
+  subpackages:
+  - middleware
 - name: github.com/sirupsen/logrus
   version: ba1b36c82c5e05c4f912a88eab0dcd91a171688f
 - name: github.com/spf13/afero
@@ -64,3 +70,5 @@ testImports:
   version: 69483b4bd14f5845b5a1e55bca19e954e827f1d0
   subpackages:
   - assert
+  - require
+  - suite

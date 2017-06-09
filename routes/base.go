@@ -47,6 +47,7 @@ func NewRouter(templateList *internal.TemplateList, log *logrus.Entry, conf *vip
 	}
 	router.FileServer("/static", http.Dir(staticFilesPath))
 	router.Mount("/", resources.RouteIndex())
+	router.Mount("/protected", resources.RouteProtected())
 
 	// router.Mount("/upload", UploadResource{}.Routes())
 	return router
