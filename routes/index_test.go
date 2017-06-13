@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/ansrivas/goupload/internal"
@@ -55,16 +57,25 @@ func (suite *indexTestSuite) Test_Get() {
 func (suite *indexTestSuite) Test_Post() {
 
 	// We first create the http.Handler we wish to test
-	// route := Resource{}.PostIndex
 
 	r, _ := http.NewRequest("POST", "/", nil)
 	w := httptest.NewRecorder()
 	suite.routes.PostIndex(w, r)
 
-	suite.Equal(http.StatusOK, w.Code, "Post request on / should return 200.")
+	suite.Equal(http.StatusFound, w.Code, "Post request on / should return http.StatusFound.")
 
-	body := w.Body.String()
-	suite.Equal("welcome", body, "Post request on / should return welcome as body.")
+	// ------------------------------------------------------------------------------
+	form := url.Values{}
+	form.Add("emailuser", "admin@gmail.com")
+	form.Add("passwordfield", "admin")
+
+	r, _ = http.NewRequest("POST", "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	w = httptest.NewRecorder()
+
+	suite.routes.PostIndex(w, r)
+	suite.Equal(http.StatusSeeOther, w.Code, "Post request on / should return http.StatusSeeOther.")
 
 }
 

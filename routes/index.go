@@ -38,11 +38,11 @@ func (idx Resource) PostIndex(w http.ResponseWriter, r *http.Request) {
 		// }
 
 		redirectTarget = "/protected"
-		http.Redirect(w, r, redirectTarget, 303)
+		http.Redirect(w, r, redirectTarget, http.StatusSeeOther)
 		return
 	}
 
-	http.Redirect(w, r, redirectTarget, 302)
+	http.Redirect(w, r, redirectTarget, http.StatusFound)
 }
 
 // RouteIndex returns a chi.Mux for all the requests defined on `/`
