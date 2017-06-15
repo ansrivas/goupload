@@ -12,5 +12,5 @@ COPY --from=build-env /go/src/github.com/ansrivas/goupload/static /app/static
 
 # Debug statement to check everything is copied properly.
 # RUN ls -al /app
-CMD ./goupload --configPath ./config.yaml
+CMD ["/app/goupload", "--configPath", "/app/config.yaml"]
 EXPOSE 8080
