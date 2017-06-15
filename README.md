@@ -25,3 +25,11 @@ This is an experimental project to understand Golang's `Chi` mux with `pongo2` t
     ```
     make test
     ```
+
+3. Execute docker-app:
+
+    ```
+    make dock_run_fg
+    ```
+
+4. Navigate to `localhost:8080` and login using `admin@gmail.com:admin`
