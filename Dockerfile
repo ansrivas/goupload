@@ -1,15 +1,16 @@
 # build stage
-FROM golang:alpine AS build-env
-ADD . /go/src/github.com/ansrivas/goupload
-RUN go build -o /go/goupload github.com/ansrivas/goupload
+FROM golang:alpine3.6 AS build-env
+COPy . /go/src/github.com/ansrivas/goupload
+RUN GOOS=linux go build -ldflags="-s -w" -o /go/goupload github.com/ansrivas/goupload
 
 # final stage
-FROM alpine
+FROM alpine:latest
 WORKDIR /app
 COPY --from=build-env /go/goupload /app/
 COPY --from=build-env /go/src/github.com/ansrivas/goupload/config.yaml /app/
 COPY --from=build-env /go/src/github.com/ansrivas/goupload/static /app/static
 
-RUN ls -al /app
-ENTRYPOINT ./goupload --configPath ./config.yaml
+# Debug statement to check everything is copied properly.
+# RUN ls -al /app
+CMD ./goupload --configPath ./config.yaml
 EXPOSE 8080
