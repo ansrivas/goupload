@@ -1,0 +1,8 @@
+version: '2'
+services:
+  goupload-s:
+    build: .
+    image: ansrivas/goupload:latest
+    container_name: goupload-c
+    ports:
+      - "8080:8080"
