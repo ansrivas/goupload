@@ -31,17 +31,17 @@ test_run:	clean build
 
 .PHONY: remove
 remove:        ## Remove running docker containers and remove the volumes
-remove:
+remove:	clean
 	docker-compose down -v
 
 .PHONY: dock_run_fg
 dock_run_fg:   ## Run docker containers, foreground.
-dock_run_fg:
+dock_run_fg:	build_docker
 	docker-compose up
 
 .PHONY: dock_run_bg
 dock_run_bg:   ## Run docker containers, background.
-dock_run_bg:
+dock_run_bg:	build_docker
 	docker-compose up -d
 
 .PHONY: build_docker
