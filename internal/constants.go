@@ -19,7 +19,6 @@ var (
 	loginPage         string
 	SuccessUploadPage string
 	path              paths
-	templates         *TemplateList
 )
 
 // TemplateList is a collection of pongo templates which is used in the application.
@@ -29,7 +28,7 @@ type TemplateList struct {
 	Public    *pongo.Template
 }
 
-//SetAssetsPath defines a baseDir for static assets.
+// SetAssetsPath defines a baseDir for static assets.
 func SetAssetsPath(baseDir string) *TemplateList {
 	path = paths{
 		Templates: "templates/",
