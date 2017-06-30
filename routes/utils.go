@@ -7,6 +7,8 @@ import (
 	"github.com/go-chi/chi"
 )
 
+// FileServer conveniently sets up a http.FileServer handler to serve
+// static files from a http.FileSystem.
 func FileServer(r chi.Router, path string, root http.FileSystem) {
 	if strings.ContainsAny(path, "{}*") {
 		panic("FileServer does not permit URL parameters.")
