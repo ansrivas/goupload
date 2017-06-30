@@ -3,15 +3,13 @@ package routes
 import (
 	"net/http"
 
-	"github.com/pressly/chi"
-
-	pongo "gopkg.in/flosch/pongo2.v3"
+	"github.com/go-chi/chi"
 )
 
 // GetProtected handles GET requests on / end point
 func (idx Resource) GetProtected(w http.ResponseWriter, r *http.Request) {
 	idx.logger.Info("Hitting the index page")
-	idx.templateList.Protected.ExecuteWriter(pongo.Context{}, w)
+	idx.templateList.Protected.ExecuteWriter(nil, w)
 }
 
 // RouteProtected returns a chi.Mux for all the requests defined on `/`
