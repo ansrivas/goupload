@@ -4,8 +4,9 @@ import (
 	"net/http"
 
 	"github.com/ansrivas/goupload/internal"
-	"github.com/pressly/chi"
-	"github.com/pressly/chi/middleware"
+	"github.com/go-chi/chi"
+
+	"github.com/go-chi/chi/middleware"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -45,7 +46,7 @@ func NewRouter(templateList *internal.TemplateList, log *logrus.Entry, conf *vip
 		templateList: templateList,
 		logger:       log,
 	}
-	router.FileServer("/static", http.Dir(staticFilesPath))
+	FileServer(router, "/static", http.Dir(staticFilesPath))
 	router.Mount("/", resources.RouteIndex())
 	router.Mount("/protected", resources.RouteProtected())
 

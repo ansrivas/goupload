@@ -12,6 +12,12 @@
   revision = "a904159b9206978bb6d53fcc7a769e5cd726c737"
 
 [[projects]]
+  name = "github.com/go-chi/chi"
+  packages = [".","middleware"]
+  revision = "967844826e58cf31213a7dfb82455d242ad85101"
+  version = "v3.0.0"
+
+[[projects]]
   name = "github.com/hashicorp/hcl"
   packages = [".","hcl/ast","hcl/parser","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token"]
   revision = "630949a3c5fa3c613328e1b8256052cbc2327c9b"
@@ -41,12 +47,6 @@
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
   revision = "d8ed2627bdf02c080bf22230dbb337003b7aba2d"
-
-[[projects]]
-  name = "github.com/pressly/chi"
-  packages = [".","middleware"]
-  revision = "e6033ea75479391a4bce3918fc119cad31e1cb30"
-  version = "v2.1.0"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -111,6 +111,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7b2634957e7ab97c332f73d9a64655df290ab18f49af597c57e1da4cb574a867"
+  inputs-digest = "a372cc228e9d47965519d202b9afb86cf5a8d6b922154e904c56dda17f8091e5"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	"github.com/pressly/chi"
+	"github.com/go-chi/chi"
 
 	pongo "gopkg.in/flosch/pongo2.v3"
 )
