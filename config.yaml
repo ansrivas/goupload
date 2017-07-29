@@ -1,3 +1,10 @@
 app:
-    static_dir_path: ./static
-    host_port: "0.0.0.0:8080"
+  static_dir_path: ./static
+  host_port: "0.0.0.0:8080"
+redis:
+  poolsize: 10
+  network: "tcp"
+  address: "localhost:6379"
+  password: ""
+  haskey: "very-secret"
+  blockkey: "very-secret-very"

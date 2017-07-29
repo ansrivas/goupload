@@ -4,14 +4,21 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-
-	pongo "gopkg.in/flosch/pongo2.v3"
 )
 
 // GetIndex handles GET requests on / end point
 func (idx Resource) GetIndex(w http.ResponseWriter, r *http.Request) {
 	idx.logger.Info("Hitting the index page")
-	idx.templateList.Public.ExecuteWriter(pongo.Context{}, w)
+
+	sess, _ := idx.store.GetSession(r)
+
+	idx.logger.Infof("Returning user is %v", sess.Values["user"])
+	err := idx.templateList.Public.ExecuteWriter(nil, w)
+	if err != nil {
+		idx.logger.Info("Failed to serve the index page")
+		http.Error(w, http.StatusText(http.StatusInternalServerError),
+			http.StatusInternalServerError)
+	}
 }
 
 // PostIndex handles POST requests on / end point
@@ -31,11 +38,12 @@ func (idx Resource) PostIndex(w http.ResponseWriter, r *http.Request) {
 	if (emailUser == "admin@gmail.com") && (password == "admin") {
 
 		idx.logger.Info("Successfully logged in there , now what?")
-		// sess.Values["userID"] = emailUser
-		// if err = sess.Save(r, w); err != nil {
-		// 	HandleSessionError(w, err)
-		// 	return
-		// }
+		sess, _ := idx.store.GetSession(r)
+		sess.Values["user"] = emailUser
+		if err := sess.Save(r, w); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
 		redirectTarget = "/protected"
 		http.Redirect(w, r, redirectTarget, http.StatusSeeOther)

@@ -40,7 +40,6 @@ func TestMuxBasic(t *testing.T) {
 			next.ServeHTTP(w, r)
 		})
 	}
-	_ = exmw
 
 	logbuf := bytes.NewBufferString("")
 	logmsg := "logmw test"
@@ -50,7 +49,6 @@ func TestMuxBasic(t *testing.T) {
 			next.ServeHTTP(w, r)
 		})
 	}
-	_ = logmw
 
 	cxindex := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -78,13 +76,11 @@ func TestMuxBasic(t *testing.T) {
 		w.WriteHeader(200)
 		w.Write([]byte("ping all"))
 	}
-	_ = pingAll
 
 	pingAll2 := func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		w.Write([]byte("ping all2"))
 	}
-	_ = pingAll2
 
 	pingOne := func(w http.ResponseWriter, r *http.Request) {
 		idParam := URLParam(r, "id")
@@ -96,13 +92,11 @@ func TestMuxBasic(t *testing.T) {
 		w.WriteHeader(200)
 		w.Write([]byte("woop." + URLParam(r, "iidd")))
 	}
-	_ = pingWoop
 
 	catchAll := func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		w.Write([]byte("catchall"))
 	}
-	_ = catchAll
 
 	m := NewRouter()
 	m.Use(countermw)
@@ -210,6 +204,43 @@ func TestMuxBasic(t *testing.T) {
 	// Custom http method DIE /ping/1/woop
 	if resp, body := testRequest(t, ts, "DIE", "/ping/1/woop", nil); body != "" || resp.StatusCode != 405 {
 		t.Fatalf(fmt.Sprintf("expecting 405 status and empty body, got %d '%s'", resp.StatusCode, body))
+	}
+}
+
+func TestMuxMounts(t *testing.T) {
+	r := NewRouter()
+
+	r.Get("/{hash}", func(w http.ResponseWriter, r *http.Request) {
+		v := URLParam(r, "hash")
+		w.Write([]byte(fmt.Sprintf("/%s", v)))
+	})
+
+	r.Route("/{hash}/share", func(r Router) {
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			v := URLParam(r, "hash")
+			w.Write([]byte(fmt.Sprintf("/%s/share", v)))
+		})
+		r.Get("/{network}", func(w http.ResponseWriter, r *http.Request) {
+			v := URLParam(r, "hash")
+			n := URLParam(r, "network")
+			w.Write([]byte(fmt.Sprintf("/%s/share/%s", v, n)))
+		})
+	})
+
+	m := NewRouter()
+	m.Mount("/sharing", r)
+
+	ts := httptest.NewServer(m)
+	defer ts.Close()
+
+	if _, body := testRequest(t, ts, "GET", "/sharing/aBc", nil); body != "/aBc" {
+		t.Fatalf(body)
+	}
+	if _, body := testRequest(t, ts, "GET", "/sharing/aBc/share", nil); body != "/aBc/share" {
+		t.Fatalf(body)
+	}
+	if _, body := testRequest(t, ts, "GET", "/sharing/aBc/share/twitter", nil); body != "/aBc/share/twitter" {
+		t.Fatalf(body)
 	}
 }
 
@@ -484,6 +515,19 @@ func TestMuxComplicatedNotFound(t *testing.T) {
 	if _, body := testRequest(t, ts, "GET", "/private/resource/nope", nil); body != "custom not-found" {
 		t.Fatalf(body)
 	}
+	// check custom not-found on trailing slash routes
+	if _, body := testRequest(t, ts, "GET", "/auth/", nil); body != "custom not-found" {
+		t.Fatalf(body)
+	}
+	if _, body := testRequest(t, ts, "GET", "/public/", nil); body != "custom not-found" {
+		t.Fatalf(body)
+	}
+	if _, body := testRequest(t, ts, "GET", "/private/", nil); body != "custom not-found" {
+		t.Fatalf(body)
+	}
+	if _, body := testRequest(t, ts, "GET", "/private/resource/", nil); body != "custom not-found" {
+		t.Fatalf(body)
+	}
 }
 
 func TestMuxWith(t *testing.T) {
@@ -672,6 +716,77 @@ func TestMuxRouteGroups(t *testing.T) {
 }
 
 func TestMuxBig(t *testing.T) {
+	r := bigMux()
+
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	var body, expected string
+
+	_, body = testRequest(t, ts, "GET", "/favicon.ico", nil)
+	if body != "fav" {
+		t.Fatalf("got '%s'", body)
+	}
+	_, body = testRequest(t, ts, "GET", "/hubs/4/view", nil)
+	if body != "/hubs/4/view reqid:1 session:anonymous" {
+		t.Fatalf("got '%v'", body)
+	}
+	_, body = testRequest(t, ts, "GET", "/hubs/4/view/index.html", nil)
+	if body != "/hubs/4/view/index.html reqid:1 session:anonymous" {
+		t.Fatalf("got '%s'", body)
+	}
+	_, body = testRequest(t, ts, "POST", "/hubs/ethereumhub/view/index.html", nil)
+	if body != "/hubs/ethereumhub/view/index.html reqid:1 session:anonymous" {
+		t.Fatalf("got '%s'", body)
+	}
+	_, body = testRequest(t, ts, "GET", "/", nil)
+	if body != "/ reqid:1 session:elvis" {
+		t.Fatalf("got '%s'", body)
+	}
+	_, body = testRequest(t, ts, "GET", "/suggestions", nil)
+	if body != "/suggestions reqid:1 session:elvis" {
+		t.Fatalf("got '%s'", body)
+	}
+	_, body = testRequest(t, ts, "GET", "/woot/444/hiiii", nil)
+	if body != "/woot/444/hiiii" {
+		t.Fatalf("got '%s'", body)
+	}
+	_, body = testRequest(t, ts, "GET", "/hubs/123", nil)
+	expected = "/hubs/123 reqid:1 session:elvis"
+	if body != expected {
+		t.Fatalf("expected:%s got:%s", expected, body)
+	}
+	_, body = testRequest(t, ts, "GET", "/hubs/123/touch", nil)
+	if body != "/hubs/123/touch reqid:1 session:elvis" {
+		t.Fatalf("got '%s'", body)
+	}
+	_, body = testRequest(t, ts, "GET", "/hubs/123/webhooks", nil)
+	if body != "/hubs/123/webhooks reqid:1 session:elvis" {
+		t.Fatalf("got '%s'", body)
+	}
+	_, body = testRequest(t, ts, "GET", "/hubs/123/posts", nil)
+	if body != "/hubs/123/posts reqid:1 session:elvis" {
+		t.Fatalf("got '%s'", body)
+	}
+	_, body = testRequest(t, ts, "GET", "/folders", nil)
+	if body != "404 page not found\n" {
+		t.Fatalf("got '%s'", body)
+	}
+	_, body = testRequest(t, ts, "GET", "/folders/", nil)
+	if body != "/folders/ reqid:1 session:elvis" {
+		t.Fatalf("got '%s'", body)
+	}
+	_, body = testRequest(t, ts, "GET", "/folders/public", nil)
+	if body != "/folders/public reqid:1 session:elvis" {
+		t.Fatalf("got '%s'", body)
+	}
+	_, body = testRequest(t, ts, "GET", "/folders/nothing", nil)
+	if body != "404 page not found\n" {
+		t.Fatalf("got '%s'", body)
+	}
+}
+
+func bigMux() Router {
 	var r, sr1, sr2, sr3, sr4, sr5, sr6 *Mux
 	r = NewRouter()
 	r.Use(func(next http.Handler) http.Handler {
@@ -704,6 +819,12 @@ func TestMuxBig(t *testing.T) {
 		r.Get("/hubs/{hubID}/view/*", func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 			s := fmt.Sprintf("/hubs/%s/view/%s reqid:%s session:%s", URLParamFromCtx(ctx, "hubID"),
+				URLParam(r, "*"), ctx.Value("requestID"), ctx.Value("session.user"))
+			w.Write([]byte(s))
+		})
+		r.Post("/hubs/{hubSlug}/view/*", func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			s := fmt.Sprintf("/hubs/%s/view/%s reqid:%s session:%s", URLParamFromCtx(ctx, "hubSlug"),
 				URLParam(r, "*"), ctx.Value("requestID"), ctx.Value("session.user"))
 			w.Write([]byte(s))
 		})
@@ -800,68 +921,7 @@ func TestMuxBig(t *testing.T) {
 		})
 	})
 
-	ts := httptest.NewServer(r)
-	defer ts.Close()
-
-	var body, expected string
-
-	_, body = testRequest(t, ts, "GET", "/favicon.ico", nil)
-	if body != "fav" {
-		t.Fatalf("got '%s'", body)
-	}
-	_, body = testRequest(t, ts, "GET", "/hubs/4/view", nil)
-	if body != "/hubs/4/view reqid:1 session:anonymous" {
-		t.Fatalf("got '%v'", body)
-	}
-	_, body = testRequest(t, ts, "GET", "/hubs/4/view/index.html", nil)
-	if body != "/hubs/4/view/index.html reqid:1 session:anonymous" {
-		t.Fatalf("got '%s'", body)
-	}
-	_, body = testRequest(t, ts, "GET", "/", nil)
-	if body != "/ reqid:1 session:elvis" {
-		t.Fatalf("got '%s'", body)
-	}
-	_, body = testRequest(t, ts, "GET", "/suggestions", nil)
-	if body != "/suggestions reqid:1 session:elvis" {
-		t.Fatalf("got '%s'", body)
-	}
-	_, body = testRequest(t, ts, "GET", "/woot/444/hiiii", nil)
-	if body != "/woot/444/hiiii" {
-		t.Fatalf("got '%s'", body)
-	}
-	_, body = testRequest(t, ts, "GET", "/hubs/123", nil)
-	expected = "/hubs/123 reqid:1 session:elvis"
-	if body != expected {
-		t.Fatalf("expected:%s got:%s", expected, body)
-	}
-	_, body = testRequest(t, ts, "GET", "/hubs/123/touch", nil)
-	if body != "/hubs/123/touch reqid:1 session:elvis" {
-		t.Fatalf("got '%s'", body)
-	}
-	_, body = testRequest(t, ts, "GET", "/hubs/123/webhooks", nil)
-	if body != "/hubs/123/webhooks reqid:1 session:elvis" {
-		t.Fatalf("got '%s'", body)
-	}
-	_, body = testRequest(t, ts, "GET", "/hubs/123/posts", nil)
-	if body != "/hubs/123/posts reqid:1 session:elvis" {
-		t.Fatalf("got '%s'", body)
-	}
-	_, body = testRequest(t, ts, "GET", "/folders", nil)
-	if body != "404 page not found\n" {
-		t.Fatalf("got '%s'", body)
-	}
-	_, body = testRequest(t, ts, "GET", "/folders/", nil)
-	if body != "/folders/ reqid:1 session:elvis" {
-		t.Fatalf("got '%s'", body)
-	}
-	_, body = testRequest(t, ts, "GET", "/folders/public", nil)
-	if body != "/folders/public reqid:1 session:elvis" {
-		t.Fatalf("got '%s'", body)
-	}
-	_, body = testRequest(t, ts, "GET", "/folders/nothing", nil)
-	if body != "404 page not found\n" {
-		t.Fatalf("got '%s'", body)
-	}
+	return r
 }
 
 func TestMuxSubroutesBasic(t *testing.T) {
@@ -1056,6 +1116,27 @@ func TestMuxSubroutes(t *testing.T) {
 		t.Fatalf("routePattern, expected:%s got:%s", expected, routePatterns[2])
 	}
 
+}
+
+func TestSingleHandler(t *testing.T) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		name := URLParam(r, "name")
+		w.Write([]byte("hi " + name))
+	})
+
+	r, _ := http.NewRequest("GET", "/", nil)
+	rctx := NewRouteContext()
+	r = r.WithContext(context.WithValue(r.Context(), RouteCtxKey, rctx))
+	rctx.URLParams.Add("name", "joe")
+
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, r)
+
+	body := string(w.Body.Bytes())
+	expected := "hi joe"
+	if body != expected {
+		t.Fatalf("expected:%s got:%s", expected, body)
+	}
 }
 
 // TODO: a Router wrapper test..
@@ -1257,7 +1338,29 @@ func TestMountingSimilarPattern(t *testing.T) {
 	}
 }
 
-func testMuxContextIsThreadSafe(t *testing.T) {
+func TestMuxMissingParams(t *testing.T) {
+	r := NewRouter()
+	r.Get(`/user/{userId:\d+}`, func(w http.ResponseWriter, r *http.Request) {
+		userId := URLParam(r, "userId")
+		w.Write([]byte(fmt.Sprintf("userId = '%s'", userId)))
+	})
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(404)
+		w.Write([]byte("nothing here"))
+	})
+
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	if _, body := testRequest(t, ts, "GET", "/user/123", nil); body != "userId = '123'" {
+		t.Fatalf(body)
+	}
+	if _, body := testRequest(t, ts, "GET", "/user/", nil); body != "nothing here" {
+		t.Fatalf(body)
+	}
+}
+
+func TestMuxContextIsThreadSafe(t *testing.T) {
 	router := NewRouter()
 	router.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), 1*time.Millisecond)
@@ -1431,3 +1534,48 @@ func (tfi *testFileInfo) Mode() os.FileMode  { return 0755 }
 func (tfi *testFileInfo) ModTime() time.Time { return time.Now() }
 func (tfi *testFileInfo) IsDir() bool        { return false }
 func (tfi *testFileInfo) Sys() interface{}   { return nil }
+
+func BenchmarkMux(b *testing.B) {
+	h1 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	h2 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	h3 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	h4 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	h5 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	h6 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+
+	mx := NewRouter()
+	mx.Get("/", h1)
+	mx.Get("/hi", h2)
+	mx.Get("/sup/{id}/and/{this}", h3)
+
+	mx.Route("/sharing/{hash}", func(mx Router) {
+		mx.Get("/", h4)          // subrouter-1
+		mx.Get("/{network}", h5) // subrouter-1
+		mx.Get("/twitter", h5)
+		mx.Route("/direct", func(mx Router) {
+			mx.Get("/", h6) // subrouter-2
+		})
+	})
+
+	routes := []string{
+		"/",
+		"/sup/123/and/this",
+		"/sharing/aBc",         // subrouter-1
+		"/sharing/aBc/twitter", // subrouter-1
+		"/sharing/aBc/direct",  // subrouter-2
+	}
+
+	for _, path := range routes {
+		b.Run("route:"+path, func(b *testing.B) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest("GET", path, nil)
+
+			b.ReportAllocs()
+			b.ResetTimer()
+
+			for i := 0; i < b.N; i++ {
+				mx.ServeHTTP(w, r)
+			}
+		})
+	}
+}

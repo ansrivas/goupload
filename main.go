@@ -44,8 +44,11 @@ func main() {
 	assertDir := config.GetString("app.static_dir_path")
 	templateList := internal.SetAssetsPath(assertDir)
 
-	router := routes.NewRouter(templateList, log, config)
+	router, err := routes.NewRouter(templateList, log, config)
 
+	if err != nil {
+		log.Errorln(err.Error())
+	}
 	// config and init server
 	addr := config.GetString("app.host_port")
 	s := &http.Server{
