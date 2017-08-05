@@ -4,6 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/ansrivas/goupload/internal"
@@ -59,6 +62,18 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	log.Info(fmt.Sprintf("server listening on %s", addr))
-	log.Fatal(s.ListenAndServe())
+	errc := make(chan error)
+	go func() {
+		c := make(chan os.Signal)
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+		errc <- fmt.Errorf("%s", <-c)
+	}()
+
+	// HTTP transport.
+	go func() {
+		fmt.Sprintf("server listening on %s", addr)
+		errc <- s.ListenAndServe()
+	}()
+	// Run!
+	log.Fatalln("exit", <-errc)
 }
