@@ -1,11 +1,13 @@
-.DEFAULT_GOAL := help
+.DEFAULT_GOAL := test
 
 help:          ## Show available options with this Makefile
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
 .PHONY : test
 test:          ## Run all the tests
-test:
+test:	build
+	docker-compose up -d && \
+	chmod +x ./test.sh && \
 	./test.sh
 
 clean:         ## Clean the application
@@ -15,7 +17,6 @@ clean:         ## Clean the application
 build:         ## Build the application
 build:	clean
 	@go build github.com/ansrivas/goupload
-
 
 .PHONY : app_help
 app_help:      ## Display flags accepted by the application

@@ -23,10 +23,22 @@ func (suite *indexTestSuite) SetupTest() {
 	templateList := internal.SetAssetsPath("./testdir")
 	log := logger.SetupLogger("testapp")
 
+	poolsize := 10
+	network := "tcp"
+	address := "localhost:6379"
+	password := ""
+	hashkey := "very-secret"
+	blockkey := "very-secret-very"
+	store, _ := NewDefaultStore(poolsize, network, address, password, []byte(hashkey), []byte(blockkey))
+
+	// Set default for 60s
+	store.Redis.SetMaxAge(60)
+
 	// We first create the http.Handler we wish to test
 	suite.routes = Resource{
 		templateList: templateList,
 		logger:       log,
+		store:        store,
 	}
 }
 
